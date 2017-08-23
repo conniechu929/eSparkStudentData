@@ -1,7 +1,5 @@
 import _ from 'lodash';
 import React, { Component } from 'react';
-import { connect } from 'react-redux';
-import { parsedStudentData } from '../actions';
 import { csv } from 'd3-request';
 import * as d3 from "d3";
 import { csvParseRows } from 'd3-dsv';
@@ -53,6 +51,7 @@ class StudentsIndex extends Component {
   constructor(props) {
     super(props);
     this.state = {};
+    this.change = false;
   }
 
   componentWillMount(){
@@ -97,39 +96,47 @@ class StudentsIndex extends Component {
     }
   }
 
+  convertInteger(str){
+    if(str === "K") {
+      return 0
+    }
+    else{
+      return Number(str)
+    }
+  }
+
   studentPaths() {
     const studentData = this.state.data;
     let new_data = {}
     const grade_domain = this.parseDomain().then((DomainQueue) => {
       _.map(studentData, student => {
         var current_domain = DomainQueue.first
-
         while(current_domain) {
           var current_level = this.convertDomainLevel(current_domain)
-          if(student[current_domain.value] === current_level || student[current_domain.value]  === " ") {
+          if(student[current_domain.value] === current_level || student[current_domain.value]  === " " || (current_domain.value === "L" && current_level === '2' && current_domain.priority > this.convertInteger(student[current_domain.value])) ) {
             // console.log("MINIMUM VALUE. STUDENT NAME: ", student["Student Name"], " Level: ", current_level, " Test: ", current_domain.value)
             var count = 1;
             var path = [current_level +"."+ current_domain.value]
             current_domain = current_domain.next;
             while(count < 5 && current_domain) {
-              var current_level = this.convertDomainLevel(current_domain)
-              if(current_level !== student[current_domain.value]) {
-                path.push(current_level +"."+ current_domain.value)
+              var convertedLevel = this.convertInteger(student[current_domain.value])
+              if(current_domain.priority >= convertedLevel) {
+                if(current_domain.priority === 0) {
+                  path.push("K."+ current_domain.value)
+                }
+                else{
+                  path.push(current_domain.priority +"."+ current_domain.value)
+                }
                 count++;
               }
-              else {
-                current_domain = current_domain.next;
-              }
+              current_domain = current_domain.next;
             }
-            path = path.join(', ');
-            student.path = path
-
-            // console.log("STUDENT NAME FROM STATE: ", this.state.data[student['Student Name']]);
+            student.path = path.join(', ')
+            new_data[student['Student Name']] = student;
+            return student
           }
           current_domain = current_domain.next;
         }
-        new_data[student['Student Name']] = student;
-        // this.setState({...this.state.data, student: student.path });
       })
       if(new_data != this.state.data){
         this.setState({data: new_data});
@@ -138,17 +145,20 @@ class StudentsIndex extends Component {
   }
 
   renderStudents() {
-    this.studentPaths()
+    if(this.change === false) {
+      this.studentPaths()
+      this.change = true;
+    }
     return _.map(this.state.data, d => {
       if (d["Student Name"] != null) {
         return (
           <li className="list-group-item" key={d.id}>
-            <p>{d["Student Name"]}</p>
-            <p>Reading Foundations: {d["RF"]}</p>
-            <p>Reading Literature: {d["RL"]}</p>
-            <p>Reading Informational Text: {d["RI"]}</p>
-            <p>Level: {d["L"]}</p>
-            <p>Path: {d["path"]} </p>
+            <h3>{d["Student Name"]}</h3>
+            <p>Reading Foundations (RF): {d["RF"]}</p>
+            <p>Reading Literature (RL): {d["RL"]}</p>
+            <p>Reading Informational Text(RI): {d["RI"]}</p>
+            <p>Literature (L): {d["L"]}</p>
+            <h5>Student Path: {d["path"]} </h5>
           </li>
           )
         }
@@ -164,18 +174,14 @@ class StudentsIndex extends Component {
     }
     return (
       <div>
-        <h3>Student Paths</h3>
+        <br></br>
+        <h2>Student Paths</h2>
         <ul className="list-group">
           {this.renderStudents()}
-
         </ul>
       </div>
     );
   }
 }
 
-function mapStateToProps(state) {
-  return { students: state.students };
-}
-
-export default connect(mapStateToProps, { parsedStudentData })(StudentsIndex);
+export default StudentsIndex;
