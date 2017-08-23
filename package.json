@@ -29,6 +29,7 @@
     "csvjson": "^4.3.4",
     "d3": "^4.10.0",
     "d3-dsv": "^1.0.5",
+    "immutability-helper": "^2.3.1",
     "install": "^0.10.1",
     "lodash": "^3.10.1",
     "npm": "^5.3.0",
