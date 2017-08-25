@@ -23,7 +23,7 @@
     
     npm start
     
-    Go to localhost:8080
+    Then go to localhost:8080
     
    ## Running Tests - 
    In the project file on your terminal run:
