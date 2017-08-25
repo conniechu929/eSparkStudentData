@@ -185,7 +185,6 @@ class StudentsTest extends Component {
     if(this.change === false) {
       this.getCSV()
       this.createdCSV = true
-      console.log(this.getCSV());
     }
     return (
       <CSVLink data={this.getCSV()}>Student Paths CSV</CSVLink>
