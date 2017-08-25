@@ -3,7 +3,6 @@ import React, { Component } from 'react';
 import { csv } from 'd3-request';
 import * as d3 from "d3";
 import { csvParseRows } from 'd3-dsv';
-import update from 'immutability-helper';
 
 class Node {
     constructor(val, priority) {
@@ -47,7 +46,7 @@ class PriorityQueue {
 
 }
 
-class StudentsIndex extends Component {
+class StudentsTest extends Component {
   constructor(props) {
     super(props);
     this.state = {};
@@ -105,6 +104,26 @@ class StudentsIndex extends Component {
     }
   }
 
+  convertLevel(domain, level, path){
+      if(domain.priority === 0) {
+        path.push("K."+ domain.value)
+      }
+      else{
+        path.push(domain.priority +"."+ domain.value)
+      }
+  }
+
+  addStudentPaths(student, domain, path, count) {
+    while(count < 5 && domain) {
+      var convertedLevel = this.convertInteger(student[domain.value])
+      if(domain.priority >= convertedLevel) {
+        this.convertLevel(domain, convertedLevel, path)
+        count++;
+      }
+      domain = domain.next;
+    }
+  }
+
   studentPaths() {
     const studentData = this.state.data;
     let new_data = {}
@@ -114,23 +133,10 @@ class StudentsIndex extends Component {
         while(current_domain) {
           var current_level = this.convertDomainLevel(current_domain)
           if(student[current_domain.value] === current_level || student[current_domain.value]  === " " || (current_domain.value === "L" && current_level === '2' && current_domain.priority > this.convertInteger(student[current_domain.value])) ) {
-            // console.log("MINIMUM VALUE. STUDENT NAME: ", student["Student Name"], " Level: ", current_level, " Test: ", current_domain.value)
             var count = 1;
             var path = [current_level +"."+ current_domain.value]
             current_domain = current_domain.next;
-            while(count < 5 && current_domain) {
-              var convertedLevel = this.convertInteger(student[current_domain.value])
-              if(current_domain.priority >= convertedLevel) {
-                if(current_domain.priority === 0) {
-                  path.push("K."+ current_domain.value)
-                }
-                else{
-                  path.push(current_domain.priority +"."+ current_domain.value)
-                }
-                count++;
-              }
-              current_domain = current_domain.next;
-            }
+            this.addStudentPaths(student, current_domain, path, count);
             student.path = path.join(', ')
             new_data[student['Student Name']] = student;
             return student
@@ -158,7 +164,7 @@ class StudentsIndex extends Component {
             <p>Reading Literature (RL): {d["RL"]}</p>
             <p>Reading Informational Text(RI): {d["RI"]}</p>
             <p>Literature (L): {d["L"]}</p>
-            <h5>Student Path: {d["path"]} </h5>
+            <h5 className="path">Student Path: {d["path"]} </h5>
           </li>
           )
         }
@@ -184,4 +190,4 @@ class StudentsIndex extends Component {
   }
 }
 
-export default StudentsIndex;
+export default StudentsTest;
