@@ -3,6 +3,7 @@ import React, { Component } from 'react';
 import { csv } from 'd3-request';
 import * as d3 from "d3";
 import { csvParseRows } from 'd3-dsv';
+import { CSVLink, CSVDownload } from 'react-csv';
 
 class Node {
     constructor(val, priority) {
@@ -32,18 +33,17 @@ class PriorityQueue {
       }
     }
 
-  showQueue() {
-    let current = this.first;
-    while(current) {
-      if (current.priority === 0) {
-        var curr_priority = "K"
-        current.priority = curr_priority
+    showQueue() {
+      let current = this.first;
+      while(current) {
+        if (current.priority === 0) {
+          var curr_priority = "K"
+          current.priority = curr_priority
+        }
+        console.log("Level: ", current.value, "TEST: ", current.priority);
+        current = current.next;
       }
-      console.log("Level: ", current.value, "TEST: ", current.priority);
-      current = current.next;
     }
-  }
-
 }
 
 class StudentsTest extends Component {
@@ -51,6 +51,7 @@ class StudentsTest extends Component {
     super(props);
     this.state = {};
     this.change = false;
+    this.createdCSV = false;
   }
 
   componentWillMount(){
@@ -61,8 +62,7 @@ class StudentsTest extends Component {
       this.setState({
         data: _.mapKeys(data, 'Student Name')
       })
-    })
-
+    });
   }
 
   parseDomain() {
@@ -157,6 +157,7 @@ class StudentsTest extends Component {
     }
     return _.map(this.state.data, d => {
       if (d["Student Name"] != null) {
+        const csvdata = [{studentname: d["Student Name"], path:d["path"]}]
         return (
           <li className="list-group-item" key={d.id}>
             <h3>{d["Student Name"]}</h3>
@@ -165,11 +166,31 @@ class StudentsTest extends Component {
             <p>Reading Informational Text(RI): {d["RI"]}</p>
             <p>Literature (L): {d["L"]}</p>
             <h5 className="path">Student Path: {d["path"]} </h5>
+            <CSVLink data={csvdata} >Download CSV</CSVLink>
           </li>
           )
         }
       })
   };
+
+  getCSV(){
+    const csvdata =  []
+    _.map(this.state.data, d => {
+      csvdata.push({studentname: d["Student Name"], path:d["path"]})
+    })
+    return csvdata
+  }
+
+  renderCSV() {
+    if(this.change === false) {
+      this.getCSV()
+      this.createdCSV = true
+      console.log(this.getCSV());
+    }
+    return (
+      <CSVLink data={this.getCSV()}>Student Paths CSV</CSVLink>
+    )
+  }
 
   render() {
     if (this.state.loadError) {
@@ -181,7 +202,8 @@ class StudentsTest extends Component {
     return (
       <div>
         <br></br>
-        <h2>Student Paths</h2>
+        <h2>All Student Paths </h2>
+        <p>Download for all students: {this.renderCSV()}</p>
         <ul className="list-group">
           {this.renderStudents()}
         </ul>

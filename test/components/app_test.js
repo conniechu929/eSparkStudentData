@@ -49,5 +49,15 @@ describe('StudentsTest' , () => {
     expect(wrapper.find('.path')).to.have.lengthOf(0)
   })
 
+  // it('Should contain correct path', () => {
+  //   const wrapper = shallow( <StudentsTest /> ).instance()
+  //   expect(wrapper.renderStudents()).to.contain('Student Path: K.RI, 1.RI, 2.RF, 2.RI, 3.RF')
+  // })
+
+  it('Should contain correct path', () => {
+    const wrapper = mount(<StudentsTest />);
+    expect(wrapper.find('ul').childAt(0).type()).to.equal('li');
+  })
+
 
 });
