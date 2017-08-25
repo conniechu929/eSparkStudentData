@@ -159,7 +159,7 @@ class StudentsTest extends Component {
       if (d["Student Name"] != null) {
         const csvdata = [{studentname: d["Student Name"], path:d["path"]}]
         return (
-          <li className="list-group-item" key={d.id}>
+          <li className="list-group-item" key={d["Student Name"]}>
             <h3>{d["Student Name"]}</h3>
             <p>Reading Foundations (RF): {d["RF"]}</p>
             <p>Reading Literature (RL): {d["RL"]}</p>
@@ -202,7 +202,7 @@ class StudentsTest extends Component {
       <div>
         <br></br>
         <h2>All Student Paths </h2>
-        <p>Download for all students: {this.renderCSV()}</p>
+        <p  className="allCSVdata">Download for all students: {this.renderCSV()}</p>
         <ul className="list-group">
           {this.renderStudents()}
         </ul>

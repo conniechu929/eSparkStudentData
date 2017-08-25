@@ -49,5 +49,4 @@ describe('StudentsTest' , () => {
     expect(wrapper.find('.path')).to.have.lengthOf(0)
   })
 
-
 });
